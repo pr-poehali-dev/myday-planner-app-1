@@ -68,4 +68,11 @@
   .gradient-green {
     background: linear-gradient(135deg, #6bcf7f 0%, #a4e6b0 100%);
   }
+
+  .gradient-text {
+    background: linear-gradient(135deg, #9b87f5 0%, #ff6b9d 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
 }

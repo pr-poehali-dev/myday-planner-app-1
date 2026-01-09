@@ -9,15 +9,23 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import Icon from '@/components/ui/icon';
 
-export const ProfileTab = () => {
+interface ProfileTabProps {
+  userData: { nickname: string; city: string; avatar: string };
+}
+
+export const ProfileTab = ({ userData }: ProfileTabProps) => {
   const [showSettings, setShowSettings] = useState(false);
   const [showInstallGuide, setShowInstallGuide] = useState(false);
-  const [nickname, setNickname] = useState('МарияПетрова');
-  const [city, setCity] = useState('Москва');
+  const [showResetDialog, setShowResetDialog] = useState(false);
+  const [nickname, setNickname] = useState(userData.nickname);
+  const [city, setCity] = useState(userData.city);
+  const [avatar, setAvatar] = useState(userData.avatar);
+
+  const avatars = ['👤', '👩‍💻', '🧑‍💻', '👨‍💻', '👩‍🎨', '🧑‍🎨', '👨‍🎨', '👩‍🚀', '🧑‍🚀', '👨‍🚀', '🦸‍♀️', '🦸', '🦸‍♂️'];
 
   const userStats = {
     nickname: nickname,
-    avatar: '👩‍💻',
+    avatar: avatar,
     city: city,
     badges: 142,
     posts: 28,
@@ -157,6 +165,15 @@ export const ProfileTab = () => {
         </Button>
       </div>
 
+      <Button 
+        variant="destructive" 
+        className="w-full" 
+        onClick={() => setShowResetDialog(true)}
+      >
+        <Icon name="RotateCcw" size={16} className="mr-2" />
+        Сбросить все данные
+      </Button>
+
       <Dialog open={showSettings} onOpenChange={setShowSettings}>
         <DialogContent className="bg-card">
           <DialogHeader>
@@ -179,8 +196,28 @@ export const ProfileTab = () => {
                 className="bg-muted/30"
               />
             </div>
+            <div>
+              <Label className="text-sm font-medium mb-2 block">Аватар</Label>
+              <div className="grid grid-cols-7 gap-2 mb-4">
+                {avatars.map((av) => (
+                  <button
+                    key={av}
+                    onClick={() => setAvatar(av)}
+                    className={`text-2xl p-2 rounded-xl transition-all hover:scale-110 ${
+                      avatar === av
+                        ? 'bg-primary/30 ring-2 ring-primary scale-110'
+                        : 'bg-muted/20 hover:bg-muted/40'
+                    }`}
+                  >
+                    {av}
+                  </button>
+                ))}
+              </div>
+            </div>
             <Button
               onClick={() => {
+                const newData = { nickname, city, avatar };
+                localStorage.setItem('user_data', JSON.stringify(newData));
                 toast.success('Настройки сохранены!');
                 setShowSettings(false);
               }}
@@ -266,6 +303,43 @@ export const ProfileTab = () => {
                 После установки иконка MyDay появится на главном экране вместе с другими приложениями!
               </p>
             </Card>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showResetDialog} onOpenChange={setShowResetDialog}>
+        <DialogContent className="bg-card">
+          <DialogHeader>
+            <DialogTitle>Сбросить все данные? ⚠️</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-muted-foreground">
+              Это действие удалит все твои цели, привычки, посты и настройки. Приложение вернется к начальному состоянию.
+            </p>
+            <p className="text-destructive font-semibold">
+              Это действие нельзя отменить!
+            </p>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setShowResetDialog(false)}
+              >
+                Отмена
+              </Button>
+              <Button
+                variant="destructive"
+                className="flex-1"
+                onClick={() => {
+                  localStorage.clear();
+                  toast.success('Все данные удалены. Перезагрузи страницу.');
+                  setShowResetDialog(false);
+                  setTimeout(() => window.location.reload(), 2000);
+                }}
+              >
+                Сбросить
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
