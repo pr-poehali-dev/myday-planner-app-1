@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { NotificationSettings, NotificationConfig } from '@/components/NotificationSettings';
+import { toast } from 'sonner';
 import Icon from '@/components/ui/icon';
 
 interface Habit {
@@ -101,6 +103,15 @@ export const HabitsTab = () => {
     }
   };
 
+  const [notificationHabit, setNotificationHabit] = useState<Habit | null>(null);
+
+  const handleSaveNotification = (config: NotificationConfig) => {
+    toast.success(`Напоминания ${config.enabled ? 'включены' : 'выключены'} для "${notificationHabit?.name}"`, {
+      description: config.enabled ? `Время: ${config.time}, дни: ${config.days.join(', ')}` : undefined,
+    });
+    setNotificationHabit(null);
+  };
+
   const financialHabits = habits.filter((h) => h.type === 'financial');
   const generalHabits = habits.filter((h) => h.type === 'general');
 
@@ -153,6 +164,16 @@ export const HabitsTab = () => {
           />
         ))}
       </div>
+
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={() => setNotificationHabit(habit)}
+        className="w-full"
+      >
+        <Icon name="Bell" size={16} className="mr-2" />
+        Настроить напоминания
+      </Button>
     </Card>
   );
 
@@ -230,6 +251,21 @@ export const HabitsTab = () => {
           {financialHabits.map(renderHabit)}
         </TabsContent>
       </Tabs>
+
+      {notificationHabit && (
+        <Dialog open={!!notificationHabit} onOpenChange={() => setNotificationHabit(null)}>
+          <DialogContent className="bg-card">
+            <DialogHeader>
+              <DialogTitle>Настройки уведомлений</DialogTitle>
+            </DialogHeader>
+            <NotificationSettings
+              habitId={notificationHabit.id}
+              habitName={notificationHabit.name}
+              onSave={handleSaveNotification}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };

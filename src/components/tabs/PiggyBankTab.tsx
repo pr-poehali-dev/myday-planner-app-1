@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { ProgressChart } from '@/components/ProgressChart';
 import Icon from '@/components/ui/icon';
 
 interface Goal {
@@ -140,6 +141,16 @@ export const PiggyBankTab = () => {
           из {goals.reduce((sum, g) => sum + g.target, 0).toLocaleString()} ₽
         </p>
       </Card>
+
+      <ProgressChart
+        title="Прогресс по целям 📊"
+        data={goals.map((goal) => ({
+          label: goal.name,
+          value: goal.current,
+          color: `linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%)`,
+        }))}
+        total={Math.max(...goals.map((g) => g.target))}
+      />
 
       <div className="space-y-3">
         {goals.map((goal) => {

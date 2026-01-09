@@ -2,8 +2,11 @@ import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 import { DailyQuote } from '@/components/DailyQuote';
+import { toast } from 'sonner';
 
 interface Post {
   id: number;
@@ -61,6 +64,28 @@ export const FeedTab = () => {
 
   const [newPost, setNewPost] = useState('');
   const [showNewPost, setShowNewPost] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const allUsers = [
+    { id: 1, name: 'Мария Петрова', avatar: '👩‍💻', followers: 156, tags: ['финансы', 'велосипед'] },
+    { id: 2, name: 'Алексей Иванов', avatar: '🧑‍🎨', followers: 243, tags: ['спорт', 'привычки'] },
+    { id: 3, name: 'Екатерина Смирнова', avatar: '👩‍🎤', followers: 189, tags: ['путешествия', 'мечты'] },
+    { id: 4, name: 'Дмитрий Козлов', avatar: '👨‍💼', followers: 134, tags: ['бизнес', 'финансы'] },
+    { id: 5, name: 'Анна Соколова', avatar: '👩‍🎓', followers: 98, tags: ['учёба', 'книги'] },
+  ];
+
+  const filteredUsers = searchQuery
+    ? allUsers.filter(
+        (user) =>
+          user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          user.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+      )
+    : allUsers;
+
+  const handleFollow = (userName: string) => {
+    toast.success(`Вы подписались на ${userName}`);
+  };
 
   const handleLike = (postId: number) => {
     setPosts(
@@ -114,13 +139,71 @@ export const FeedTab = () => {
     <div className="p-4 space-y-4 animate-fade-in">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold">Лента 📰</h1>
-        <Button
-          size="icon"
-          className="gradient-purple rounded-full shadow-lg"
-          onClick={() => setShowNewPost(!showNewPost)}
-        >
-          <Icon name={showNewPost ? 'X' : 'Plus'} size={20} />
-        </Button>
+        <div className="flex gap-2">
+          <Dialog open={showSearch} onOpenChange={setShowSearch}>
+            <DialogTrigger asChild>
+              <Button size="icon" variant="outline" className="rounded-full">
+                <Icon name="Search" size={20} />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="bg-card">
+              <DialogHeader>
+                <DialogTitle>Поиск пользователей</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <Input
+                  placeholder="Имя или интересы..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="bg-muted/30"
+                />
+                <div className="space-y-2 max-h-96 overflow-y-auto">
+                  {filteredUsers.map((user) => (
+                    <Card key={user.id} className="p-3 hover:border-primary/40 transition-all">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-2xl">
+                            {user.avatar}
+                          </div>
+                          <div>
+                            <p className="font-semibold text-foreground">{user.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {user.followers} подписчиков
+                            </p>
+                            <div className="flex gap-1 mt-1">
+                              {user.tags.map((tag) => (
+                                <span
+                                  key={tag}
+                                  className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full"
+                                >
+                                  #{tag}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                        <Button
+                          size="sm"
+                          className="gradient-purple"
+                          onClick={() => handleFollow(user.name)}
+                        >
+                          Подписаться
+                        </Button>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+          <Button
+            size="icon"
+            className="gradient-purple rounded-full shadow-lg"
+            onClick={() => setShowNewPost(!showNewPost)}
+          >
+            <Icon name={showNewPost ? 'X' : 'Plus'} size={20} />
+          </Button>
+        </div>
       </div>
 
       <DailyQuote />
