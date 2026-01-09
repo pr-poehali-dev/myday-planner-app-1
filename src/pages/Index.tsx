@@ -1,12 +1,27 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from 'react';
+import { PiggyBankTab } from '@/components/tabs/PiggyBankTab';
+import { HabitsTab } from '@/components/tabs/HabitsTab';
+import { GoalsTab } from '@/components/tabs/GoalsTab';
+import { FeedTab } from '@/components/tabs/FeedTab';
+import { ProfileTab } from '@/components/tabs/ProfileTab';
+import { BottomNav } from '@/components/BottomNav';
+
+export type TabType = 'piggybank' | 'habits' | 'goals' | 'feed' | 'profile';
 
 const Index = () => {
+  const [activeTab, setActiveTab] = useState<TabType>('feed');
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4 color-black text-black">Добро пожаловать!</h1>
-        <p className="text-xl text-gray-600">тут будет отображаться ваш проект</p>
+    <div className="min-h-screen bg-background pb-20">
+      <div className="max-w-md mx-auto">
+        {activeTab === 'piggybank' && <PiggyBankTab />}
+        {activeTab === 'habits' && <HabitsTab />}
+        {activeTab === 'goals' && <GoalsTab />}
+        {activeTab === 'feed' && <FeedTab />}
+        {activeTab === 'profile' && <ProfileTab />}
       </div>
+
+      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
     </div>
   );
 };
