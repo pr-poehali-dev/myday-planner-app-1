@@ -18,14 +18,7 @@ interface Goal {
 }
 
 export const GoalsTab = () => {
-  const [goals, setGoals] = useState<Goal[]>([
-    { id: 1, name: 'Сделать зарядку', emoji: '🏃', period: 'today', completed: false, progress: 0 },
-    { id: 2, name: 'Прочитать 2 главы', emoji: '📖', period: 'today', completed: true, progress: 100 },
-    { id: 3, name: 'Отложить 3000₽', emoji: '💰', period: 'week', completed: false, progress: 60 },
-    { id: 4, name: 'Пройти онлайн-курс', emoji: '🎓', period: 'week', completed: false, progress: 45 },
-    { id: 5, name: 'Накопить 50000₽', emoji: '💵', period: 'month', completed: false, progress: 30 },
-    { id: 6, name: 'Выучить английский', emoji: '🇬🇧', period: 'year', completed: false, progress: 15 },
-  ]);
+  const [goals, setGoals] = useState<Goal[]>([]);
 
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [newGoalName, setNewGoalName] = useState('');
@@ -204,19 +197,48 @@ export const GoalsTab = () => {
         </TabsList>
 
         <TabsContent value="today" className="space-y-3">
-          {filterGoals('today').map(renderGoal)}
+          {filterGoals('today').length === 0 ? (
+            <Card className="p-8 text-center">
+              <div className="text-6xl mb-4">🎯</div>
+              <h3 className="text-xl font-semibold mb-2">Поставь цель на сегодня!</h3>
+              <p className="text-muted-foreground">Что важное ты хочешь сделать сегодня?</p>
+            </Card>
+          ) : (
+            filterGoals('today').map(renderGoal)
+          )}
         </TabsContent>
 
         <TabsContent value="week" className="space-y-3">
-          {filterGoals('week').map(renderGoal)}
+          {filterGoals('week').length === 0 ? (
+            <Card className="p-8 text-center">
+              <div className="text-6xl mb-4">📅</div>
+              <p className="text-muted-foreground">У вас пока нет целей на неделю</p>
+            </Card>
+          ) : (
+            filterGoals('week').map(renderGoal)
+          )}
         </TabsContent>
 
         <TabsContent value="month" className="space-y-3">
-          {filterGoals('month').map(renderGoal)}
+          {filterGoals('month').length === 0 ? (
+            <Card className="p-8 text-center">
+              <div className="text-6xl mb-4">📆</div>
+              <p className="text-muted-foreground">У вас пока нет целей на месяц</p>
+            </Card>
+          ) : (
+            filterGoals('month').map(renderGoal)
+          )}
         </TabsContent>
 
         <TabsContent value="year" className="space-y-3">
-          {filterGoals('year').map(renderGoal)}
+          {filterGoals('year').length === 0 ? (
+            <Card className="p-8 text-center">
+              <div className="text-6xl mb-4">🎆</div>
+              <p className="text-muted-foreground">У вас пока нет целей на год</p>
+            </Card>
+          ) : (
+            filterGoals('year').map(renderGoal)
+          )}
         </TabsContent>
       </Tabs>
     </div>

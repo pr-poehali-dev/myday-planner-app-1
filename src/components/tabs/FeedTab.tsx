@@ -22,58 +22,31 @@ interface Post {
   tags: string[];
 }
 
-export const FeedTab = () => {
-  const [posts, setPosts] = useState<Post[]>([
-    {
-      id: 1,
-      author: 'Мария Петрова',
-      avatar: '👩‍💻',
-      content: 'Сегодня сделала первый взнос в копилку на новый велосипед! Уже 10% от цели! 🚴‍♀️',
-      likes: 24,
-      badges: 12,
-      comments: 3,
-      liked: false,
-      badged: false,
-      tags: ['финансы', 'мечты', 'велосипед'],
-    },
-    {
-      id: 2,
-      author: 'Алексей Иванов',
-      avatar: '🧑‍🎨',
-      content: '30 дней подряд занимаюсь спортом! Никогда не думал, что смогу 💪',
-      likes: 45,
-      badges: 28,
-      comments: 7,
-      liked: false,
-      badged: false,
-      tags: ['спорт', 'привычки', 'достижение'],
-    },
-    {
-      id: 3,
-      author: 'Екатерина Смирнова',
-      avatar: '👩‍🎤',
-      content: 'Накопила на отпуск мечты! Через неделю улетаю на море ✈️🏖️',
-      likes: 67,
-      badges: 42,
-      comments: 15,
-      liked: false,
-      badged: false,
-      tags: ['отпуск', 'мечта', 'путешествия'],
-    },
-  ]);
+interface FeedTabProps {
+  userData: { nickname: string; city: string; avatar: string };
+}
+
+export const FeedTab = ({ userData }: FeedTabProps) => {
+  const [posts, setPosts] = useState<Post[]>([]);
 
   const [newPost, setNewPost] = useState('');
   const [showNewPost, setShowNewPost] = useState(false);
+  const [postImage, setPostImage] = useState<string | null>(null);
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPostImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const allUsers = [
-    { id: 1, name: 'Мария Петрова', avatar: '👩‍💻', followers: 156, tags: ['финансы', 'велосипед'] },
-    { id: 2, name: 'Алексей Иванов', avatar: '🧑‍🎨', followers: 243, tags: ['спорт', 'привычки'] },
-    { id: 3, name: 'Екатерина Смирнова', avatar: '👩‍🎤', followers: 189, tags: ['путешествия', 'мечты'] },
-    { id: 4, name: 'Дмитрий Козлов', avatar: '👨‍💼', followers: 134, tags: ['бизнес', 'финансы'] },
-    { id: 5, name: 'Анна Соколова', avatar: '👩‍🎓', followers: 98, tags: ['учёба', 'книги'] },
-  ];
+  const allUsers: any[] = [];
 
   const filteredUsers = searchQuery
     ? allUsers.filter(
@@ -119,9 +92,10 @@ export const FeedTab = () => {
     if (newPost.trim()) {
       const post: Post = {
         id: Date.now(),
-        author: 'Вы',
-        avatar: '😊',
+        author: userData.nickname,
+        avatar: userData.avatar,
         content: newPost,
+        image: postImage || undefined,
         likes: 0,
         badges: 0,
         comments: 0,
@@ -131,7 +105,9 @@ export const FeedTab = () => {
       };
       setPosts([post, ...posts]);
       setNewPost('');
+      setPostImage(null);
       setShowNewPost(false);
+      toast.success('Пост опубликован!');
     }
   };
 
@@ -158,40 +134,47 @@ export const FeedTab = () => {
                   className="bg-muted/30"
                 />
                 <div className="space-y-2 max-h-96 overflow-y-auto">
-                  {filteredUsers.map((user) => (
-                    <Card key={user.id} className="p-3 hover:border-primary/40 transition-all">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-2xl">
-                            {user.avatar}
-                          </div>
-                          <div>
-                            <p className="font-semibold text-foreground">{user.name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {user.followers} подписчиков
-                            </p>
-                            <div className="flex gap-1 mt-1">
-                              {user.tags.map((tag) => (
-                                <span
-                                  key={tag}
-                                  className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full"
-                                >
-                                  #{tag}
-                                </span>
-                              ))}
+                  {filteredUsers.length === 0 ? (
+                    <Card className="p-8 text-center">
+                      <div className="text-5xl mb-3">🔍</div>
+                      <p className="text-muted-foreground">Пользователей пока нет</p>
+                    </Card>
+                  ) : (
+                    filteredUsers.map((user) => (
+                      <Card key={user.id} className="p-3 hover:border-primary/40 transition-all">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-2xl">
+                              {user.avatar}
+                            </div>
+                            <div>
+                              <p className="font-semibold text-foreground">{user.name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {user.followers} подписчиков
+                              </p>
+                              <div className="flex gap-1 mt-1">
+                                {user.tags.map((tag) => (
+                                  <span
+                                    key={tag}
+                                    className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full"
+                                  >
+                                    #{tag}
+                                  </span>
+                                ))}
+                              </div>
                             </div>
                           </div>
+                          <Button
+                            size="sm"
+                            className="gradient-purple"
+                            onClick={() => handleFollow(user.name)}
+                          >
+                            Подписаться
+                          </Button>
                         </div>
-                        <Button
-                          size="sm"
-                          className="gradient-purple"
-                          onClick={() => handleFollow(user.name)}
-                        >
-                          Подписаться
-                        </Button>
-                      </div>
-                    </Card>
-                  ))}
+                      </Card>
+                    ))
+                  )}
                 </div>
               </div>
             </DialogContent>
@@ -216,17 +199,63 @@ export const FeedTab = () => {
             onChange={(e) => setNewPost(e.target.value)}
             className="min-h-24 bg-muted/30 border-muted"
           />
-          <Button
-            onClick={handleCreatePost}
-            className="w-full gradient-purple font-semibold"
-            disabled={!newPost.trim()}
-          >
-            Опубликовать
-          </Button>
+          {postImage && (
+            <div className="relative">
+              <img src={postImage} alt="Превью" className="w-full rounded-lg" />
+              <Button
+                size="icon"
+                variant="destructive"
+                className="absolute top-2 right-2"
+                onClick={() => setPostImage(null)}
+              >
+                <Icon name="X" size={16} />
+              </Button>
+            </div>
+          )}
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => document.getElementById('post-image-upload')?.click()}
+            >
+              <Icon name="Image" size={16} className="mr-2" />
+              Добавить фото
+            </Button>
+            <input
+              id="post-image-upload"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageUpload}
+            />
+            <Button
+              onClick={handleCreatePost}
+              className="flex-1 gradient-purple font-semibold"
+              disabled={!newPost.trim()}
+            >
+              Опубликовать
+            </Button>
+          </div>
         </Card>
       )}
 
       <div className="space-y-4">
+        {posts.length === 0 && (
+          <Card className="p-8 text-center">
+            <div className="text-6xl mb-4">📰</div>
+            <h3 className="text-xl font-semibold mb-2">Лента пуста</h3>
+            <p className="text-muted-foreground mb-4">
+              Создай свою первую публикацию и поделись своими достижениями!
+            </p>
+            <Button
+              onClick={() => setShowNewPost(true)}
+              className="gradient-purple font-semibold"
+            >
+              <Icon name="Plus" size={16} className="mr-2" />
+              Создать пост
+            </Button>
+          </Card>
+        )}
         {posts.map((post) => (
           <Card
             key={post.id}
@@ -243,6 +272,10 @@ export const FeedTab = () => {
             </div>
 
             <p className="text-foreground leading-relaxed">{post.content}</p>
+
+            {post.image && (
+              <img src={post.image} alt="Пост" className="w-full rounded-lg" />
+            )}
 
             {post.tags.length > 0 && (
               <div className="flex flex-wrap gap-2">

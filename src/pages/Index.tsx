@@ -40,7 +40,7 @@ const Index = () => {
         {activeTab === 'piggybank' && <PiggyBankTab />}
         {activeTab === 'habits' && <HabitsTab />}
         {activeTab === 'goals' && <GoalsTab />}
-        {activeTab === 'feed' && <FeedTab />}
+        {activeTab === 'feed' && <FeedTab userData={userData} />}
         {activeTab === 'profile' && <ProfileTab userData={userData} />}
       </div>
 

@@ -17,11 +17,7 @@ interface Goal {
 }
 
 export const PiggyBankTab = () => {
-  const [goals, setGoals] = useState<Goal[]>([
-    { id: 1, name: 'Новый велосипед', emoji: '🚴‍♀️', target: 30000, current: 8500 },
-    { id: 2, name: 'Отпуск на море', emoji: '🏖️', target: 100000, current: 42000 },
-    { id: 3, name: 'Новый ноутбук', emoji: '💻', target: 80000, current: 15000 },
-  ]);
+  const [goals, setGoals] = useState<Goal[]>([]);
 
   const [newGoalName, setNewGoalName] = useState('');
   const [newGoalTarget, setNewGoalTarget] = useState('');
@@ -142,17 +138,28 @@ export const PiggyBankTab = () => {
         </p>
       </Card>
 
-      <ProgressChart
-        title="Прогресс по целям 📊"
-        data={goals.map((goal) => ({
-          label: goal.name,
-          value: goal.current,
-          color: `linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%)`,
-        }))}
-        total={Math.max(...goals.map((g) => g.target))}
-      />
+      {goals.length > 0 && (
+        <ProgressChart
+          title="Прогресс по целям 📊"
+          data={goals.map((goal) => ({
+            label: goal.name,
+            value: goal.current,
+            color: `linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%)`,
+          }))}
+          total={Math.max(...goals.map((g) => g.target))}
+        />
+      )}
 
       <div className="space-y-3">
+        {goals.length === 0 && (
+          <Card className="p-8 text-center">
+            <div className="text-6xl mb-4">🐷</div>
+            <h3 className="text-xl font-semibold mb-2">Создай свою первую цель!</h3>
+            <p className="text-muted-foreground">
+              Нажми на кнопку + сверху, чтобы начать копить на мечту
+            </p>
+          </Card>
+        )}
         {goals.map((goal) => {
           const progress = (goal.current / goal.target) * 100;
           return (

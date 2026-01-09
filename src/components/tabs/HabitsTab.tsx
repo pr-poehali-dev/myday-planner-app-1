@@ -19,44 +19,7 @@ interface Habit {
 }
 
 export const HabitsTab = () => {
-  const [habits, setHabits] = useState<Habit[]>([
-    {
-      id: 1,
-      name: 'Откладывать 500₽',
-      emoji: '💰',
-      type: 'financial',
-      streak: 7,
-      completedToday: false,
-      daysCompleted: [1, 2, 3, 4, 5, 6, 7],
-    },
-    {
-      id: 2,
-      name: 'Заниматься спортом',
-      emoji: '💪',
-      type: 'general',
-      streak: 14,
-      completedToday: false,
-      daysCompleted: Array.from({ length: 14 }, (_, i) => i + 1),
-    },
-    {
-      id: 3,
-      name: 'Читать 30 минут',
-      emoji: '📚',
-      type: 'general',
-      streak: 5,
-      completedToday: false,
-      daysCompleted: [1, 2, 3, 4, 5],
-    },
-    {
-      id: 4,
-      name: 'Не тратить на кофе',
-      emoji: '☕',
-      type: 'financial',
-      streak: 3,
-      completedToday: false,
-      daysCompleted: [1, 2, 3],
-    },
-  ]);
+  const [habits, setHabits] = useState<Habit[]>([]);
 
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [newHabitName, setNewHabitName] = useState('');
@@ -240,15 +203,39 @@ export const HabitsTab = () => {
         </TabsList>
 
         <TabsContent value="all" className="space-y-3">
-          {habits.map(renderHabit)}
+          {habits.length === 0 ? (
+            <Card className="p-8 text-center">
+              <div className="text-6xl mb-4">✅</div>
+              <h3 className="text-xl font-semibold mb-2">Создай свою первую привычку!</h3>
+              <p className="text-muted-foreground">
+                Нажми на кнопку + сверху и начни свой путь к успеху
+              </p>
+            </Card>
+          ) : (
+            habits.map(renderHabit)
+          )}
         </TabsContent>
 
         <TabsContent value="general" className="space-y-3">
-          {generalHabits.map(renderHabit)}
+          {generalHabits.length === 0 ? (
+            <Card className="p-8 text-center">
+              <div className="text-6xl mb-4">💪</div>
+              <p className="text-muted-foreground">У вас пока нет обычных привычек</p>
+            </Card>
+          ) : (
+            generalHabits.map(renderHabit)
+          )}
         </TabsContent>
 
         <TabsContent value="financial" className="space-y-3">
-          {financialHabits.map(renderHabit)}
+          {financialHabits.length === 0 ? (
+            <Card className="p-8 text-center">
+              <div className="text-6xl mb-4">💰</div>
+              <p className="text-muted-foreground">У вас пока нет финансовых привычек</p>
+            </Card>
+          ) : (
+            financialHabits.map(renderHabit)
+          )}
         </TabsContent>
       </Tabs>
 
