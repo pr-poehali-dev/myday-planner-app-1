@@ -15,6 +15,7 @@ interface Goal {
   period: 'today' | 'week' | 'month' | 'year';
   completed: boolean;
   progress: number;
+  deadline?: string;
 }
 
 export const GoalsTab = () => {
@@ -24,6 +25,7 @@ export const GoalsTab = () => {
   const [newGoalName, setNewGoalName] = useState('');
   const [newGoalPeriod, setNewGoalPeriod] = useState<Goal['period']>('today');
   const [newGoalEmoji, setNewGoalEmoji] = useState('🎯');
+  const [newGoalDeadline, setNewGoalDeadline] = useState('');
 
   const emojis = ['🎯', '💰', '📚', '🏃', '🎨', '💻', '🎓', '✈️', '🏋️', '🎸'];
 
@@ -46,10 +48,12 @@ export const GoalsTab = () => {
         period: newGoalPeriod,
         completed: false,
         progress: 0,
+        deadline: newGoalDeadline || undefined,
       };
       setGoals([...goals, goal]);
       setNewGoalName('');
       setNewGoalEmoji('🎯');
+      setNewGoalDeadline('');
       setShowAddDialog(false);
     }
   };
@@ -83,20 +87,41 @@ export const GoalsTab = () => {
             <p className={`font-semibold ${goal.completed ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
               {goal.name}
             </p>
-            <p className="text-xs text-muted-foreground mt-1">{periodLabels[goal.period]}</p>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+              <span>{periodLabels[goal.period]}</span>
+              {goal.deadline && (
+                <>
+                  <span>•</span>
+                  <Icon name="Calendar" size={12} className="inline" />
+                  <span>{new Date(goal.deadline).toLocaleDateString('ru-RU')}</span>
+                </>
+              )}
+            </div>
           </div>
         </div>
-        <Button
-          size="icon"
-          onClick={() => handleToggleGoal(goal.id)}
-          className={`rounded-full w-10 h-10 ${
-            goal.completed
-              ? 'gradient-green'
-              : 'bg-muted/30 hover:bg-muted/50 text-muted-foreground'
-          }`}
-        >
-          <Icon name={goal.completed ? 'Check' : 'Circle'} size={20} />
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            size="icon"
+            onClick={() => handleToggleGoal(goal.id)}
+            className={`rounded-full w-10 h-10 ${
+              goal.completed
+                ? 'gradient-green'
+                : 'bg-muted/30 hover:bg-muted/50 text-muted-foreground'
+            }`}
+          >
+            <Icon name={goal.completed ? 'Check' : 'Circle'} size={20} />
+          </Button>
+          {goal.completed && (
+            <Button
+              size="icon"
+              variant="destructive"
+              className="rounded-full w-10 h-10"
+              onClick={() => setGoals(goals.filter((g) => g.id !== goal.id))}
+            >
+              <Icon name="Trash2" size={16} />
+            </Button>
+          )}
+        </div>
       </div>
 
       {!goal.completed && goal.progress > 0 && (
@@ -168,6 +193,18 @@ export const GoalsTab = () => {
                   <SelectItem value="year">Год</SelectItem>
                 </SelectContent>
               </Select>
+
+              <div>
+                <label className="text-sm font-medium mb-2 block">
+                  Дедлайн (необязательно)
+                </label>
+                <Input
+                  type="date"
+                  value={newGoalDeadline}
+                  onChange={(e) => setNewGoalDeadline(e.target.value)}
+                  className="bg-muted/30"
+                />
+              </div>
 
               <Button onClick={handleAddGoal} className="w-full gradient-purple font-semibold">
                 Создать цель

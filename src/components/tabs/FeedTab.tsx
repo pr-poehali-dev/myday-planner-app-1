@@ -261,14 +261,25 @@ export const FeedTab = ({ userData }: FeedTabProps) => {
             key={post.id}
             className="p-4 space-y-3 animate-scale-in hover:border-primary/40 transition-all"
           >
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-2xl">
-                {post.avatar}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-2xl">
+                  {post.avatar}
+                </div>
+                <div>
+                  <p className="font-semibold text-foreground">{post.author}</p>
+                  <p className="text-xs text-muted-foreground">2 часа назад</p>
+                </div>
               </div>
-              <div>
-                <p className="font-semibold text-foreground">{post.author}</p>
-                <p className="text-xs text-muted-foreground">2 часа назад</p>
-              </div>
+              {post.author === userData.nickname && (
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => setPosts(posts.filter((p) => p.id !== post.id))}
+                >
+                  <Icon name="Trash2" size={16} className="text-muted-foreground" />
+                </Button>
+              )}
             </div>
 
             <p className="text-foreground leading-relaxed">{post.content}</p>

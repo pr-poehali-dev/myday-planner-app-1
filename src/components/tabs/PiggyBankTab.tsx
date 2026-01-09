@@ -231,6 +231,15 @@ export const PiggyBankTab = () => {
                     </div>
                   </DialogContent>
                 </Dialog>
+                {progress >= 100 && (
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => setGoals(goals.filter((g) => g.id !== goal.id))}
+                  >
+                    <Icon name="Trash2" size={16} />
+                  </Button>
+                )}
               </div>
             </Card>
           );

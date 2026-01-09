@@ -16,6 +16,8 @@ interface Habit {
   streak: number;
   completedToday: boolean;
   daysCompleted: number[];
+  duration?: number;
+  startDate?: number;
 }
 
 export const HabitsTab = () => {
@@ -25,6 +27,7 @@ export const HabitsTab = () => {
   const [newHabitName, setNewHabitName] = useState('');
   const [newHabitType, setNewHabitType] = useState<'financial' | 'general'>('general');
   const [newHabitEmoji, setNewHabitEmoji] = useState('✅');
+  const [newHabitDuration, setNewHabitDuration] = useState('0');
 
   const financialEmojis = ['💰', '💵', '💳', '🏦', '☕', '🛒', '🎯'];
   const generalEmojis = ['💪', '📚', '🧘', '🏃', '🎨', '🎵', '🌱'];
@@ -50,6 +53,7 @@ export const HabitsTab = () => {
 
   const handleAddHabit = () => {
     if (newHabitName) {
+      const duration = parseInt(newHabitDuration) || 0;
       const habit: Habit = {
         id: Date.now(),
         name: newHabitName,
@@ -58,10 +62,13 @@ export const HabitsTab = () => {
         streak: 0,
         completedToday: false,
         daysCompleted: [],
+        duration: duration,
+        startDate: Date.now(),
       };
       setHabits([...habits, habit]);
       setNewHabitName('');
       setNewHabitEmoji('✅');
+      setNewHabitDuration('0');
       setShowAddDialog(false);
     }
   };
@@ -75,70 +82,102 @@ export const HabitsTab = () => {
     setNotificationHabit(null);
   };
 
+  const isHabitExpired = (habit: Habit) => {
+    if (!habit.duration || habit.duration === 0) return false;
+    const daysPassed = Math.floor((Date.now() - (habit.startDate || 0)) / (1000 * 60 * 60 * 24));
+    return daysPassed >= habit.duration;
+  };
+
   const financialHabits = habits.filter((h) => h.type === 'financial');
   const generalHabits = habits.filter((h) => h.type === 'general');
 
-  const renderHabit = (habit: Habit) => (
-    <Card
-      key={habit.id}
-      className={`p-4 space-y-3 transition-all animate-scale-in ${
-        habit.completedToday ? 'border-success bg-success/5' : 'hover:border-primary/40'
-      }`}
-    >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3 flex-1">
-          <div
-            className={`w-14 h-14 rounded-2xl flex items-center justify-center text-3xl ${
-              habit.completedToday
-                ? 'bg-gradient-to-br from-success to-success/60'
-                : 'bg-gradient-to-br from-primary to-secondary'
-            }`}
-          >
-            {habit.emoji}
-          </div>
-          <div className="flex-1">
-            <p className="font-semibold text-foreground">{habit.name}</p>
-            <div className="flex items-center gap-2 mt-1">
-              <Icon name="Flame" size={16} className="text-orange-500" />
-              <p className="text-sm font-medium text-orange-500">{habit.streak} дней</p>
+  const renderHabit = (habit: Habit) => {
+    const expired = isHabitExpired(habit);
+    const currentWeekDay = Math.floor(habit.daysCompleted.length / 7);
+    const weekStart = currentWeekDay * 7;
+    const weekCompleted = habit.daysCompleted.slice(weekStart, weekStart + 7);
+    
+    return (
+      <Card
+        key={habit.id}
+        className={`p-4 space-y-3 transition-all animate-scale-in ${
+          habit.completedToday ? 'border-success bg-success/5' : 'hover:border-primary/40'
+        }`}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3 flex-1">
+            <div
+              className={`w-14 h-14 rounded-2xl flex items-center justify-center text-3xl ${
+                habit.completedToday
+                  ? 'bg-gradient-to-br from-success to-success/60'
+                  : 'bg-gradient-to-br from-primary to-secondary'
+              }`}
+            >
+              {habit.emoji}
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold text-foreground">{habit.name}</p>
+              <div className="flex items-center gap-2 mt-1">
+                <Icon name="Flame" size={16} className="text-orange-500" />
+                <p className="text-sm font-medium text-orange-500">{habit.streak} дней</p>
+                {habit.duration && habit.duration > 0 && (
+                  <>
+                    <span className="text-muted-foreground">•</span>
+                    <p className="text-sm text-muted-foreground">
+                      {Math.min(habit.streak, habit.duration)}/{habit.duration}
+                    </p>
+                  </>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-        <Button
-          size="icon"
-          onClick={() => handleToggleHabit(habit.id)}
-          className={`rounded-full w-12 h-12 ${
-            habit.completedToday
-              ? 'gradient-green'
-              : 'bg-muted/30 hover:bg-muted/50 text-muted-foreground'
-          }`}
-        >
-          <Icon name={habit.completedToday ? 'Check' : 'Circle'} size={24} />
-        </Button>
-      </div>
-
-      <div className="flex gap-1">
-        {Array.from({ length: 7 }).map((_, i) => (
-          <div
-            key={i}
-            className={`h-2 flex-1 rounded-full ${
-              i < habit.daysCompleted.length % 7 ? 'bg-success' : 'bg-muted/30'
+          <Button
+            size="icon"
+            onClick={() => handleToggleHabit(habit.id)}
+            className={`rounded-full w-12 h-12 ${
+              habit.completedToday
+                ? 'gradient-green'
+                : 'bg-muted/30 hover:bg-muted/50 text-muted-foreground'
             }`}
-          />
-        ))}
-      </div>
+          >
+            <Icon name={habit.completedToday ? 'Check' : 'Circle'} size={24} />
+          </Button>
+        </div>
 
-      <Button
-        size="sm"
-        variant="outline"
-        onClick={() => setNotificationHabit(habit)}
-        className="w-full"
-      >
-        <Icon name="Bell" size={16} className="mr-2" />
-        Настроить напоминания
-      </Button>
-    </Card>
-  );
+        <div className="flex gap-1">
+          {Array.from({ length: 7 }).map((_, i) => (
+            <div
+              key={i}
+              className={`h-2 flex-1 rounded-full ${
+                weekCompleted.includes(weekStart + i + 1) ? 'bg-success' : 'bg-muted/30'
+              }`}
+            />
+          ))}
+        </div>
+
+        <div className="flex gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setNotificationHabit(habit)}
+            className="flex-1"
+          >
+            <Icon name="Bell" size={16} className="mr-2" />
+            Напоминания
+          </Button>
+          {expired && (
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={() => setHabits(habits.filter((h) => h.id !== habit.id))}
+            >
+              <Icon name="Trash2" size={16} />
+            </Button>
+          )}
+        </div>
+      </Card>
+    );
+  };
 
   return (
     <div className="p-4 space-y-4 animate-fade-in">
@@ -187,6 +226,20 @@ export const HabitsTab = () => {
                 onChange={(e) => setNewHabitName(e.target.value)}
                 className="bg-muted/30"
               />
+              <div>
+                <label className="text-sm font-medium mb-2 block">
+                  Длительность (дней, 0 = бессрочно)
+                </label>
+                <Input
+                  type="number"
+                  min="0"
+                  max="70"
+                  placeholder="0"
+                  value={newHabitDuration}
+                  onChange={(e) => setNewHabitDuration(e.target.value)}
+                  className="bg-muted/30"
+                />
+              </div>
               <Button onClick={handleAddHabit} className="w-full gradient-purple font-semibold">
                 Создать привычку
               </Button>
