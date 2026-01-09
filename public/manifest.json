@@ -1,0 +1,20 @@
+{
+  "name": "MyDay - Ежедневник",
+  "short_name": "MyDay",
+  "description": "Личный ежедневник с трекером привычек, целей и копилкой",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A0A0A",
+  "theme_color": "#9b87f5",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["lifestyle", "productivity", "finance"],
+  "lang": "ru"
+}
